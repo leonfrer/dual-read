@@ -58,6 +58,23 @@ const processor = unified()
 	.use(rehypeSanitize, schema)
 	.use(rehypeStringify);
 
+const htmlCache = new Map<string, string>();
+const HTML_CACHE_MAX = 800;
+
 export function renderMarkdown(text: string): string {
-	return String(processor.processSync(text));
+	const cached = htmlCache.get(text);
+	if (cached !== undefined) {
+		return cached;
+	}
+
+	const html = String(processor.processSync(text));
+	htmlCache.set(text, html);
+	if (htmlCache.size > HTML_CACHE_MAX) {
+		const oldest = htmlCache.keys().next().value;
+		if (oldest !== undefined) {
+			htmlCache.delete(oldest);
+		}
+	}
+
+	return html;
 }

@@ -2,6 +2,8 @@ export const READING_BAND = 0.22;
 export const DIM_OPACITY = 0.4;
 export const FOCUS_MS = 180;
 export const DRAG_THRESHOLD_PX = 5;
+export const TOUCH_DRAG_THRESHOLD_PX = 16;
+export const TAP_MAX_MS = 500;
 
 export function readingBandOffset(viewportHeight: number): number {
 	return viewportHeight * READING_BAND;
@@ -30,6 +32,31 @@ export function scrollTopForPair(pairOffsetTop: number, viewportHeight: number):
 
 export function isPointerDrag(dx: number, dy: number, threshold = DRAG_THRESHOLD_PX): boolean {
 	return dx * dx + dy * dy > threshold * threshold;
+}
+
+export function dragThreshold(pointerType: string): number {
+	return pointerType === 'mouse' ? DRAG_THRESHOLD_PX : TOUCH_DRAG_THRESHOLD_PX;
+}
+
+export function isFinePointer(pointerType: string): boolean {
+	return pointerType === 'mouse';
+}
+
+export function isTapGesture(
+	dx: number,
+	dy: number,
+	durationMs: number,
+	pointerType: string
+): boolean {
+	if (durationMs > TAP_MAX_MS) {
+		return false;
+	}
+
+	return !isPointerDrag(dx, dy, dragThreshold(pointerType));
+}
+
+export function hasRangeSelection(selection: Pick<Selection, 'isCollapsed'> | null): boolean {
+	return selection !== null && !selection.isCollapsed;
 }
 
 export function hairlinePercent(position: number, pairCount: number): number {

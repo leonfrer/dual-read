@@ -3,6 +3,9 @@
 
 html {
 	color-scheme: light dark;
+	-webkit-text-size-adjust: 100%;
+	-webkit-tap-highlight-color: transparent;
+	touch-action: manipulation;
 }
 
 body {
@@ -27,6 +30,12 @@ body {
 .quiet-action:hover:not(:disabled),
 .quiet-action:focus-visible:not(:disabled) {
 	color: CanvasText;
+}
+
+@media (hover: none) {
+	.quiet-action {
+		color: color-mix(in oklab, CanvasText 82%, transparent);
+	}
 }
 
 .quiet-action:disabled {

@@ -1,3 +1,4 @@
+import { createId } from '$lib/id';
 import { db } from './database';
 import type { Book, LibraryItem, NewPair, Pair, Resume, SourceKind } from './types';
 
@@ -47,7 +48,7 @@ export async function createBook(input: {
 
 	const now = Date.now();
 	const book: Book = {
-		id: crypto.randomUUID(),
+		id: createId(),
 		title: input.title,
 		createdAt: now,
 		openedAt: now,
@@ -57,7 +58,7 @@ export async function createBook(input: {
 	};
 
 	const pairs: Pair[] = input.pairs.map((pair, index) => ({
-		id: crypto.randomUUID(),
+		id: createId(),
 		bookId: book.id,
 		order: index,
 		en: pair.en,

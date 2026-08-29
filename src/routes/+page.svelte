@@ -219,6 +219,21 @@
 		border: 0;
 	}
 
+	@media (hover: none) {
+		.title {
+			color: CanvasText;
+		}
+	}
+
+	@media (pointer: coarse) {
+		.delete {
+			width: 2.75rem;
+			height: 2.75rem;
+			margin-top: -0.45rem;
+			margin-right: -0.55rem;
+		}
+	}
+
 	@media (prefers-reduced-motion: reduce) {
 		.title {
 			transition: none;

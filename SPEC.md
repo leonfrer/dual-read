@@ -1,6 +1,6 @@
 # Dual Read — v1 spec
 
-Personal desktop reader for English–Chinese bilingual books. No backend. The user imports two documents and reads them as aligned pairs in a zen two-column chapter: the current pair is lit, the other pairs are dim.
+Personal desktop and iPad reader for English–Chinese bilingual books. No backend. The user imports two documents and reads them as aligned pairs in a zen two-column chapter: the current pair is lit, the other pairs are dim.
 
 This spec is the v1 contract for product behavior, data, and import. Later features (in-place pair editing, quote-anchored notes) constrain the v1 data model but are not in the v1 UI.
 
@@ -12,7 +12,7 @@ Presentation — color, type, spacing, chrome styling, and motion — describes 
 | ----------- | -------------------------------------------------------------------- |
 | Audience    | The author, as a personal tool                                       |
 | Languages   | English (left) and Chinese (right). Fixed.                           |
-| Platform    | Desktop web. No mobile layout in v1.                                 |
+| Platform    | Desktop and iPad web. No phone layout in v1.                         |
 | Hosting     | Client-only. Existing stack: SvelteKit + `@sveltejs/adapter-static`. |
 | Persistence | IndexedDB on this browser. No accounts, no sync.                     |
 
@@ -32,7 +32,7 @@ Presentation — color, type, spacing, chrome styling, and motion — describes 
 
 ### v1 does not
 
-Account/cloud sync, mobile layout, editing imported text, notes/highlights, search, table of contents, EPUB/PDF/Word, export/backup, TTS, pop-up translation, auto-alignment, bundled sample book, a second reading mode.
+Account/cloud sync, phone layout, editing imported text, notes/highlights, search, table of contents, EPUB/PDF/Word, export/backup, TTS, pop-up translation, auto-alignment, bundled sample book, a second reading mode.
 
 ### Later (no v1 UI; v1 schema must not paint us into a corner)
 
@@ -196,7 +196,7 @@ Reader **behavior** (what is current, how you move, what chrome does) is the con
 
 ### Layout
 
-- The whole book is a two-column **chapter** in document flow (stacked pair rows). Virtualize only if needed; the UX is the full chapter, not a window of N neighbors, and not a one-pair slideshow.
+- The whole book is a two-column **chapter** in document flow (stacked pair rows). Offscreen pairs may be unmounted (spacers keep the chapter length). The UX is still one scrolling chapter, not a window of N neighbors, and not a one-pair slideshow.
 - Each row is one pair: English left, Chinese right, currently **50/50**, with no splitter. When the two sides differ in height, **top-align**; the shorter side leaves empty space below.
 - The current pair is at full contrast. Other pairs are dim, still readable and selectable. Lighting is the whole row (both sides). Currently dim is ~40% opacity. There is no second mode and no zen toggle.
 - Columns currently max about 28–32rem, with a ~3rem gutter and a faint vertical rule. The gutter mark on the current pair brightens and unfurls; the pair is currently centered rather than stretched to the full viewport width.
@@ -209,11 +209,11 @@ Reader **behavior** (what is current, how you move, what chrome does) is the con
 
 The current pair is the pair that occupies an invisible **reading band** at about 20–25% from the top of the viewport. Opening a book restores `pairId` and scrolls that pair onto the band. The first pair also sits on the band (space above). The last pair can sit on the band (space below).
 
-A click that is not a drag focuses that pair and scrolls it onto the band. A pointer drag only selects text and does not change the current pair.
+A click that is not a drag focuses that pair and scrolls it onto the band. A pointer drag only selects text and does not change the current pair. On touch, a pan scrolls the chapter (the reading band still follows); a short tap that is not a pan focuses that pair; a long-press selects text and does not change the current pair.
 
 ### Chrome
 
-Hidden until the pointer is near a window edge (top/bottom). Then:
+On a mouse or trackpad, hidden until the pointer is near a window edge (top/bottom). On touch, a tap on the current pair or empty chapter space toggles the chrome (docked at the top); scrolling hides it. Edge swipe is not used (it fights the system). Then:
 
 - Title
 - `n/N`
@@ -222,21 +222,25 @@ Hidden until the pointer is near a window edge (top/bottom). Then:
 
 Chrome currently uses quiet text controls (no persistent underline, no icons, no capsule buttons) on a gradient veil. Hover raises contrast. Progress is not a slider inside this bar.
 
-A **full-width progress control** stays at the bottom of the window (currently a hairline with a tick). It is the scrubber (jump to any pair by position; persist immediately). Hover or drag shows `n/N`. When the bottom chrome appears, it sits above this control; the control does not hide.
+A **full-width progress control** stays at the bottom of the window (currently a hairline with a tick). It is the scrubber (jump to any pair by position; persist immediately). Hover or drag shows `n/N`. On touch the hit area is larger (~44px) and `n/N` shows while scrubbing. When the bottom chrome appears, it sits above this control; the control does not hide.
 
 No onboarding. No notes placeholder. No import. There is no import control inside zen; leave to the library first.
 
 ### Movement
 
-| Input                  | Action                                                                                                                                                          |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Home                   | First pair, on the reading band                                                                                                                                 |
-| End                    | Last pair, on the reading band                                                                                                                                  |
-| Esc                    | Library                                                                                                                                                         |
-| Wheel / trackpad       | Scroll the chapter like a document. The pair on the reading band becomes current and is persisted. Programmatic smooth scrolls do not light intermediate pairs. |
-| Click a pair (no drag) | That pair becomes current and scrolls to the reading band                                                                                                       |
-| Drag on a pair         | Select text only                                                                                                                                                |
-| Progress control       | Jump to that pair; persist immediately; currently snap scroll                                                                                                   |
+| Input                                    | Action                                                                                                                                                          |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Home                                     | First pair, on the reading band                                                                                                                                 |
+| End                                      | Last pair, on the reading band                                                                                                                                  |
+| Esc                                      | Library                                                                                                                                                         |
+| Wheel / trackpad                         | Scroll the chapter like a document. The pair on the reading band becomes current and is persisted. Programmatic smooth scrolls do not light intermediate pairs. |
+| Click a pair (no drag)                   | That pair becomes current and scrolls to the reading band                                                                                                       |
+| Drag on a pair                           | Select text only                                                                                                                                                |
+| Tap current pair / empty chapter (touch) | Toggle chrome. A pan is not a tap.                                                                                                                              |
+| Tap another pair (touch, no pan)         | That pair becomes current and scrolls to the reading band                                                                                                       |
+| Pan / flick                              | Scroll the chapter like a document. The pair on the reading band becomes current. Chrome hides.                                                                 |
+| Long-press a pair                        | Select text only                                                                                                                                                |
+| Progress control                         | Jump to that pair; persist immediately; currently snap scroll                                                                                                   |
 
 Motion currently: chapter fade-in on open (~360ms); focus opacity ~150–200ms with the gutter mark easing beside it; chrome veil fades and slides (~200ms); keyboard and click scrolling is `smooth`; hairline fill eases except while scrubbing; `prefers-reduced-motion: reduce` makes motion instant; scrubbing the progress control snaps without a smooth scroll.
 
@@ -259,7 +263,7 @@ v1 does not implement these. Implementers must not invent a notes UI or an edito
 - TypeScript, Svelte 5 runes, Tailwind v4, `@tailwindcss/typography`.
 - `adapter-static` with SPA fallback; `ssr = false` is expected for a client-only IndexedDB app.
 - All product strings in English (see `AGENTS.md`).
-- UUID: `crypto.randomUUID()`.
+- UUID: `crypto.randomUUID()` when present; otherwise RFC 4122 v4 via `crypto.getRandomValues` (iPad Safari outside a secure context).
 - Font size: persist a px value; clamp to a sensible range (e.g. 16–28) in the hover chrome. Applies to passage text, not chrome.
 
 ## 12. Acceptance
@@ -272,7 +276,7 @@ v1 is done when:
 4. Txt + markdown imports succeed when counts match.
 5. Reloading the browser keeps books and the current pair.
 6. Reloading `/book/:id` does not dump the user on `/`.
-7. The reader shows a two-column chapter, English left; the current pair is lit and other pairs are dim; Home, End, click, wheel, and the progress hairline move; a drag selects text without changing pair; a click without a drag focuses that pair.
+7. The reader shows a two-column chapter, English left; the current pair is lit and other pairs are dim; Home, End, click, wheel, and the progress hairline move; a drag selects text without changing pair; a click without a drag focuses that pair. On touch, a tap on the current pair toggles chrome, a pan scrolls without treating that as a tap, and the reading band still follows the scroll.
 8. Delete with confirm removes the book.
 9. Font size survives reload and applies to every book. Color currently follows the OS.
 10. There is no path in the UI to edit text, add a note, search, or open a TOC.

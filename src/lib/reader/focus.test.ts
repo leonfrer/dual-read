@@ -2,11 +2,16 @@ import { describe, expect, test } from 'vitest';
 import {
 	DRAG_THRESHOLD_PX,
 	hairlinePercent,
+	hasRangeSelection,
 	indexAtReadingBand,
+	isFinePointer,
 	isPointerDrag,
+	isTapGesture,
 	READING_BAND,
 	readingBandOffset,
-	scrollTopForPair
+	scrollTopForPair,
+	TAP_MAX_MS,
+	TOUCH_DRAG_THRESHOLD_PX
 } from './focus';
 
 describe('indexAtReadingBand', () => {
@@ -51,6 +56,41 @@ describe('isPointerDrag', () => {
 	test('treats movement past the threshold as a drag', () => {
 		expect(isPointerDrag(DRAG_THRESHOLD_PX + 1, 0)).toBe(true);
 		expect(isPointerDrag(3, 5)).toBe(true);
+	});
+});
+
+describe('isTapGesture', () => {
+	test('keeps a short, still mouse press as a click', () => {
+		expect(isTapGesture(0, 0, 120, 'mouse')).toBe(true);
+		expect(isTapGesture(DRAG_THRESHOLD_PX, 0, 120, 'mouse')).toBe(true);
+	});
+
+	test('rejects a mouse drag or a long press', () => {
+		expect(isTapGesture(DRAG_THRESHOLD_PX + 1, 0, 120, 'mouse')).toBe(false);
+		expect(isTapGesture(0, 0, TAP_MAX_MS + 1, 'mouse')).toBe(false);
+	});
+
+	test('allows finger jitter below the touch slop', () => {
+		expect(isTapGesture(10, 10, 180, 'touch')).toBe(true);
+		expect(isTapGesture(TOUCH_DRAG_THRESHOLD_PX, 0, 180, 'touch')).toBe(true);
+		expect(isTapGesture(TOUCH_DRAG_THRESHOLD_PX + 1, 0, 180, 'touch')).toBe(false);
+	});
+
+	test('treats pen like touch', () => {
+		expect(isTapGesture(12, 0, 200, 'pen')).toBe(true);
+		expect(isFinePointer('pen')).toBe(false);
+		expect(isFinePointer('mouse')).toBe(true);
+	});
+});
+
+describe('hasRangeSelection', () => {
+	test('ignores a caret or a missing selection', () => {
+		expect(hasRangeSelection(null)).toBe(false);
+		expect(hasRangeSelection({ isCollapsed: true })).toBe(false);
+	});
+
+	test('detects a range', () => {
+		expect(hasRangeSelection({ isCollapsed: false })).toBe(true);
 	});
 });
 

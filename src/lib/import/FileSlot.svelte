@@ -75,7 +75,8 @@
 			{#if file}
 				{file.name}
 			{:else}
-				Drop a file, or choose one.
+				<span class="file-drop">Drop a file, or choose one.</span>
+				<span class="file-choose">Choose a file.</span>
 			{/if}
 		</span>
 		<input class="sr-only" type="file" accept={IMPORT_ACCEPT} {onchange} />
@@ -118,10 +119,24 @@
 		transition: color 120ms ease;
 	}
 
+	.file-choose {
+		display: none;
+	}
+
 	.filled .file,
 	.dragging .label,
 	.dragging .file {
 		color: CanvasText;
+	}
+
+	@media (hover: none) {
+		.file-drop {
+			display: none;
+		}
+
+		.file-choose {
+			display: inline;
+		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {

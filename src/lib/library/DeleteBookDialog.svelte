@@ -158,6 +158,15 @@
 		border: 0;
 	}
 
+	@media (pointer: coarse) {
+		.close {
+			width: 2.75rem;
+			height: 2.75rem;
+			top: 0.55rem;
+			right: 0.55rem;
+		}
+	}
+
 	.sheet-header {
 		padding-right: 1.75rem;
 	}

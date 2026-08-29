@@ -6,18 +6,20 @@
 	let {
 		text,
 		kind,
-		lang
+		lang,
+		lit = false
 	}: {
 		text: string;
 		kind: SourceKind;
 		lang: string;
+		lit?: boolean;
 	} = $props();
 
 	let html = $derived(kind === 'markdown' ? renderMarkdown(text) : '');
 	let plain = $derived(kind === 'markdown' ? '' : renderPlainText(text));
 </script>
 
-<div class="passage min-w-0" {lang}>
+<div class={['passage min-w-0', lit && 'lit']} {lang}>
 	{#if kind === 'markdown'}
 		<div class="prose max-w-none prose-neutral dark:prose-invert">
 			<!-- HTML is produced by rehype-sanitize. -->
@@ -32,8 +34,11 @@
 <style>
 	.passage {
 		line-height: 1.75;
-		text-wrap: pretty;
 		overflow-wrap: break-word;
+	}
+
+	.passage.lit {
+		text-wrap: pretty;
 		text-rendering: optimizeLegibility;
 	}
 
@@ -130,6 +135,7 @@
 		max-width: 100%;
 		margin-block: 0.4em;
 		overflow-x: auto;
+		touch-action: pan-x pan-y;
 	}
 
 	.passage :global(.prose table) {
