@@ -3,6 +3,12 @@ import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vitest/config';
 
+function kitBase(): string {
+	const raw = process.env.BASE_PATH ?? '';
+	if (raw === '' || raw === '/') return '';
+	return raw.endsWith('/') ? raw.slice(0, -1) : raw;
+}
+
 export default defineConfig({
 	plugins: [
 		tailwindcss(),
@@ -12,7 +18,10 @@ export default defineConfig({
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
-			adapter: adapter({ fallback: 'index.html' })
+			adapter: adapter({ fallback: 'index.html' }),
+			paths: {
+				base: kitBase()
+			}
 		})
 	],
 	test: {
