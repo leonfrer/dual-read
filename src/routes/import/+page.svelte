@@ -51,7 +51,7 @@
 <main class="mx-auto min-h-dvh w-[48rem] max-w-[calc(100%-4rem)] py-16">
 	<header class="mb-12 flex items-baseline justify-between gap-8">
 		<h1 class="text-2xl font-medium tracking-tight">Import book</h1>
-		<a class="text-sm underline-offset-4 hover:underline" href={resolve('/')}>Cancel</a>
+		<a class="quiet-action text-sm" href={resolve('/')}>Cancel</a>
 	</header>
 
 	<form class="flex flex-col gap-8" {onsubmit}>
@@ -74,11 +74,7 @@
 		{/if}
 
 		<div>
-			<button
-				class="text-sm underline-offset-4 hover:underline disabled:opacity-40"
-				type="submit"
-				disabled={!canSubmit}
-			>
+			<button class="quiet-action text-sm" type="submit" disabled={!canSubmit}>
 				{busy ? 'Importing…' : 'Import book'}
 			</button>
 		</div>

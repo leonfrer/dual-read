@@ -1,20 +1,20 @@
 # Dual Read — v1 spec
 
-Personal desktop reader for English–Chinese bilingual books. No backend. The user imports two documents, reads them as aligned pairs, one pair at a time, in a zen two-column view.
+Personal desktop reader for English–Chinese bilingual books. No backend. The user imports two documents and reads them as aligned pairs in a zen two-column chapter: the current pair is lit, the other pairs are dim.
 
 This spec is the v1 contract. Later features (in-place pair editing, quote-anchored notes) constrain the v1 data model but are not in the v1 UI.
 
 ## 1. Product
 
-| | |
-| --- | --- |
-| Audience | The author, as a personal tool |
-| Languages | English (left) and Chinese (right). Fixed. |
-| Platform | Desktop web. No mobile layout in v1. |
-| Hosting | Client-only. Existing stack: SvelteKit + `@sveltejs/adapter-static`. |
-| Persistence | IndexedDB on this browser. No accounts, no sync. |
+|             |                                                                      |
+| ----------- | -------------------------------------------------------------------- |
+| Audience    | The author, as a personal tool                                       |
+| Languages   | English (left) and Chinese (right). Fixed.                           |
+| Platform    | Desktop web. No mobile layout in v1.                                 |
+| Hosting     | Client-only. Existing stack: SvelteKit + `@sveltejs/adapter-static`. |
+| Persistence | IndexedDB on this browser. No accounts, no sync.                     |
 
-**Job to be done:** open a book from a local library, see the current English paragraph and its Chinese counterpart, go to the next pair without chrome in the way.
+**Job to be done:** open a book from a local library, read the current English passage and its Chinese counterpart at full contrast with surrounding pairs dim, and move without chrome in the way.
 
 ## 2. Goals and non-goals
 
@@ -24,13 +24,13 @@ This spec is the v1 contract. Later features (in-place pair editing, quote-ancho
 - Split them into 1:1 pairs and refuse the import when counts differ
 - Keep many books in a local library
 - Resume a book at the last pair
-- Zen reading: only the current pair on screen
+- Zen reading: a flowing two-column chapter; the current pair is lit and the rest are dim
 - Remember font size globally
 - Follow the OS light/dark scheme
 
 ### v1 does not
 
-Account/cloud sync, mobile layout, editing imported text, notes/highlights, search, table of contents, EPUB/PDF/Word, export/backup, TTS, pop-up translation, auto-alignment, bundled sample book, in-app theme switch, click-to-turn-page, page-turn animation.
+Account/cloud sync, mobile layout, editing imported text, notes/highlights, search, table of contents, EPUB/PDF/Word, export/backup, TTS, pop-up translation, auto-alignment, bundled sample book, in-app theme switch, a second reading mode, page-turn or slide animation.
 
 ### Later (no v1 UI; v1 schema must not paint us into a corner)
 
@@ -41,11 +41,11 @@ Account/cloud sync, mobile layout, editing imported text, notes/highlights, sear
 
 All chrome copy is English.
 
-| Route | Role |
-| --- | --- |
-| `/` | Library. This is the site home. |
-| `/import` | New book: title + English file + Chinese file |
-| `/book/:id` | Zen reader for that book |
+| Route       | Role                                          |
+| ----------- | --------------------------------------------- |
+| `/`         | Library. This is the site home.               |
+| `/import`   | New book: title + English file + Chinese file |
+| `/book/:id` | Zen chapter reader for that book              |
 
 - Opening the site at `/` always shows the library, not the last book.
 - Reloading `/book/:id` stays on that book at the stored pair.
@@ -59,34 +59,34 @@ IndexedDB. Suggested object stores:
 
 ### `books`
 
-| Field | Type | Notes |
-| --- | --- | --- |
-| `id` | string (UUID) | Primary key |
-| `title` | string | Set at import; user-editable metadata, not body text |
-| `createdAt` | number | `Date.now()` |
-| `openedAt` | number | Last time the reader was opened; library sort key |
-| `pairCount` | number | Denormalized `N` for `n/N` |
+| Field       | Type          | Notes                                                |
+| ----------- | ------------- | ---------------------------------------------------- |
+| `id`        | string (UUID) | Primary key                                          |
+| `title`     | string        | Set at import; user-editable metadata, not body text |
+| `createdAt` | number        | `Date.now()`                                         |
+| `openedAt`  | number        | Last time the reader was opened; library sort key    |
+| `pairCount` | number        | Denormalized `N` for `n/N`                           |
 
 Import always creates a **new** book. Importing the same files twice yields two books. There is no in-place replace. To change files: delete the book, import again.
 
 ### `pairs`
 
-| Field | Type | Notes |
-| --- | --- | --- |
-| `id` | string (UUID) | Stable identity for progress and future notes |
-| `bookId` | string | |
-| `order` | number | Reading sequence. v1 writes `0 .. n-1` at import. Later inserts may use fractional order or reindex; do not treat array index as identity. |
-| `en` | string | English source of this block |
-| `zh` | string | Chinese source of this block |
+| Field    | Type          | Notes                                                                                                                                      |
+| -------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`     | string (UUID) | Stable identity for progress and future notes                                                                                              |
+| `bookId` | string        |                                                                                                                                            |
+| `order`  | number        | Reading sequence. v1 writes `0 .. n-1` at import. Later inserts may use fractional order or reindex; do not treat array index as identity. |
+| `en`     | string        | English source of this block                                                                                                               |
+| `zh`     | string        | Chinese source of this block                                                                                                               |
 
 v1 import never writes an empty side (empty blocks are stripped first). The schema still **allows** `""` on one side so later pair-insert can land an empty side.
 
 ### `progress`
 
-| Field | Type | Notes |
-| --- | --- | --- |
+| Field    | Type   | Notes                         |
+| -------- | ------ | ----------------------------- |
 | `bookId` | string | Primary key, one row per book |
-| `pairId` | string | Current pair |
+| `pairId` | string | Current pair                  |
 
 Display `n/N` as 1-based position of `pairId` in `order`. If `pairId` is missing (corrupt/deleted), snap to the first pair by `order`.
 
@@ -139,16 +139,16 @@ When **rendering** a txt passage, collapse internal newlines to spaces (hard-wra
 
 Split by **block**, not by blank lines:
 
-| Block | One passage? |
-| --- | --- |
-| ATX/setext heading | Yes — a heading is its own pair page |
-| Paragraph | Yes |
-| List (tight or loose) | **The whole list** is one passage, not each item |
-| Fenced code | Yes |
-| Block quote | Yes |
-| GFM table | Yes |
-| YAML front matter | Drop; not a passage |
-| Thematic break (`---`) | Skip; not a passage |
+| Block                  | One passage?                                     |
+| ---------------------- | ------------------------------------------------ |
+| ATX/setext heading     | Yes — a heading is its own pair page             |
+| Paragraph              | Yes                                              |
+| List (tight or loose)  | **The whole list** is one passage, not each item |
+| Fenced code            | Yes                                              |
+| Block quote            | Yes                                              |
+| GFM table              | Yes                                              |
+| YAML front matter      | Drop; not a passage                              |
+| Thematic break (`---`) | Skip; not a passage                              |
 
 If a markdown file and a text file are paired, they still only import when the two block counts match. Mismatch is the user's problem to fix in the files.
 
@@ -170,7 +170,7 @@ Plain text, not parsed as markdown, so literal `*` survives. After collapsing in
 
 ### Overflow
 
-- If the pair is taller than the viewport: **one shared vertical scroll** for both columns. Independent column scrolling is forbidden.
+- The chapter uses **one shared vertical scroll**. Independent column scrolling is forbidden.
 - If a table is wider than its column: **horizontal scroll inside that column only**. Vertical scroll stays shared.
 
 ## 8. Library
@@ -193,12 +193,20 @@ Delete removes the book, its pairs, and its progress row.
 
 ### Layout
 
-- Only the current pair is in the DOM (one pair on screen, no virtualized chapter).
-- English left, Chinese right, **50/50**, not a draggable splitter.
-- Each column has a max line length; the pair is centered in the window. Do not stretch columns to the full viewport width.
+- The whole book is a two-column **chapter** in document flow (stacked pair rows). Virtualize only if needed; the UX is the full chapter, not a window of N neighbors, and not a one-pair slideshow.
+- Each row is one pair: English left, Chinese right, **50/50**, not a draggable splitter. When the two sides differ in height, **top-align**; the shorter side leaves empty space below.
+- The current pair is at full contrast. Other pairs are dim (~40% contrast), not blurred, still readable and selectable. Lighting is the whole row (both sides). There is no second mode and no zen toggle.
+- Each column has a max width of about 28–32rem. The gutter is about 3rem with a faint vertical rule. The pair is centered. Do not stretch columns to the full viewport width.
+- Pair rows are spaced like consecutive paragraphs (~1.25–1.5em), not cards.
 - System light/dark (`prefers-color-scheme`). No in-app theme toggle.
-- System fonts, with `lang="en"` on the left column and `lang="zh-Hans"` on the right.
-- Native text selection is allowed (comparison). Clicking the body does **not** turn the page.
+- System fonts. UI chrome, library, and import use `ui-sans-serif`. Passage text uses `lang="en"` with a system serif (ui-serif / Georgia) and `lang="zh-Hans"` with a system Song / PingFang stack. No webfonts.
+- Native text selection is allowed (comparison).
+
+### Focus
+
+The current pair is the pair that occupies an invisible **reading band** at about 20–25% from the top of the viewport. Opening a book restores `pairId` and scrolls that pair onto the band. The first pair also sits on the band (space above). The last pair can sit on the band (space below).
+
+A click that is not a drag focuses that pair and scrolls it onto the band. A pointer drag only selects text and does not change the current pair.
 
 ### Chrome
 
@@ -207,28 +215,34 @@ Hidden until the pointer is near a window edge (top/bottom). Then:
 - Title
 - `n/N`
 - Previous / Next
-- Scrubbable progress (jump to any pair by position)
-- `A+` / `A-` (global font size, persisted)
+- `A+` / `A-` (global font size, persisted; applies to passage text only)
 - Exit → library
 
-No onboarding. No notes placeholder. No import.
+Quiet text controls: no persistent underline, no icons, no capsule buttons. Hover raises contrast. There is **no slider in the chrome**.
+
+A **full-width progress hairline** stays at the bottom of the window. It is the scrubber (jump to any pair by position; persist immediately). Hover or drag shows `n/N`. When the bottom chrome appears, it sits above the hairline; the hairline does not hide.
+
+No onboarding. No notes placeholder. No import. There is no import control inside zen; leave to the library first.
 
 ### Movement
 
-| Input | Action |
-| --- | --- |
-| `←` `j` | Previous pair |
-| `→` `k` Space | Next pair |
-| Shift+Space | Previous pair |
-| Home | First pair |
-| End | Last pair |
-| Esc | Library |
-| Hover Previous/Next | Same as keys |
-| Hover progress slider | Jump to that pair; persist immediately |
+| Input                  | Action                                                                                                                                                          |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `←` `j`                | Previous pair; scroll so its top sits on the reading band                                                                                                       |
+| `→` `k` Space          | Next pair; same alignment                                                                                                                                       |
+| Shift+Space            | Previous pair                                                                                                                                                   |
+| Home                   | First pair, on the reading band                                                                                                                                 |
+| End                    | Last pair, on the reading band                                                                                                                                  |
+| Esc                    | Library                                                                                                                                                         |
+| Wheel / trackpad       | Scroll the chapter like a document. The pair on the reading band becomes current and is persisted. Programmatic smooth scrolls do not light intermediate pairs. |
+| Click a pair (no drag) | That pair becomes current and scrolls to the reading band                                                                                                       |
+| Drag on a pair         | Select text only                                                                                                                                                |
+| Hover Previous/Next    | Same as keys                                                                                                                                                    |
+| Progress hairline      | Jump to that pair; persist immediately; snap scroll                                                                                                             |
 
 At the first pair, Previous is disabled. At the last pair, Next is disabled. **No wrap.** Next on the last pair does not kick the user to the library.
 
-Instant swap. No page-turn animation.
+No page-turn or slide animation. Focus opacity ~150–200ms; keyboard and click scrolling is `smooth`. `prefers-reduced-motion: reduce` makes both instant. Hairline scrubbing snaps without a smooth scroll.
 
 Opening a book from the library sets `openedAt` and restores `pairId`.
 
@@ -250,7 +264,7 @@ v1 does not implement these. Implementers must not invent a notes UI or an edito
 - `adapter-static` with SPA fallback; `ssr = false` is expected for a client-only IndexedDB app.
 - All product strings in English (see `AGENTS.md`).
 - UUID: `crypto.randomUUID()`.
-- Font size: persist a px value; clamp to a sensible range (e.g. 16–28) in the hover chrome.
+- Font size: persist a px value; clamp to a sensible range (e.g. 16–28) in the hover chrome. Applies to passage text, not chrome.
 
 ## 12. Acceptance
 
@@ -262,7 +276,7 @@ v1 is done when:
 4. Txt + markdown imports succeed when counts match.
 5. Reloading the browser keeps books and the current pair.
 6. Reloading `/book/:id` does not dump the user on `/`.
-7. The reader shows one pair, 50/50, English left; keyboard and slider move; ends do not wrap; body click does not turn the page; text is selectable.
+7. The reader shows a two-column chapter, English left; the current pair is lit and other pairs are dim; keyboard, click, wheel, and the progress hairline move; ends do not wrap; a drag selects text without changing pair; a click without a drag focuses that pair.
 8. Delete with confirm removes the book.
 9. Dark/light follows the OS; font size survives reload and applies to every book.
 10. There is no path in the UI to edit text, add a note, search, or open a TOC.

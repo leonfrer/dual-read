@@ -30,6 +30,28 @@
 </div>
 
 <style>
+	.passage {
+		line-height: 1.7;
+	}
+
+	.passage[lang='en'] {
+		font-family:
+			ui-serif, Georgia, 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Times New Roman', Times,
+			serif;
+	}
+
+	.passage[lang='zh-Hans'] {
+		font-family:
+			'Songti SC', STSong, 'Songti TC', PMingLiU, 'PingFang SC', 'Hiragino Sans GB',
+			'Noto Serif CJK SC', 'Microsoft YaHei', serif;
+	}
+
+	.passage :global(.prose) {
+		font-family: inherit;
+		line-height: inherit;
+		max-width: none;
+	}
+
 	.passage :global(.passage-link) {
 		text-decoration: underline;
 		text-underline-offset: 0.15em;

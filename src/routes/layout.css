@@ -12,3 +12,16 @@ body {
 	color: CanvasText;
 	font-family: ui-sans-serif, system-ui, sans-serif;
 }
+
+.quiet-action {
+	color: color-mix(in oklab, CanvasText 68%, transparent);
+	text-decoration: none;
+}
+
+.quiet-action:hover:not(:disabled) {
+	color: CanvasText;
+}
+
+.quiet-action:disabled {
+	opacity: 0.4;
+}

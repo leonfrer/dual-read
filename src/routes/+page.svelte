@@ -28,14 +28,13 @@
 	<header class="mb-12 flex items-baseline justify-between gap-8">
 		<h1 class="text-2xl font-medium tracking-tight">Library</h1>
 		{#if data.items.length > 0}
-			<a class="text-sm underline-offset-4 hover:underline" href={resolve('/import')}>Import book</a
-			>
+			<a class="quiet-action text-sm" href={resolve('/import')}>Import book</a>
 		{/if}
 	</header>
 
 	{#if data.items.length === 0}
 		<p>
-			<a class="underline-offset-4 hover:underline" href={resolve('/import')}>Import book</a>
+			<a class="quiet-action" href={resolve('/import')}>Import book</a>
 		</p>
 	{:else}
 		<ul class="divide-y divide-neutral-200 dark:divide-neutral-800">
@@ -51,23 +50,19 @@
 					{#if pendingDeleteId === item.book.id}
 						<span class="flex shrink-0 items-baseline gap-3 text-sm">
 							<button
-								class="underline-offset-4 hover:underline"
+								class="quiet-action"
 								type="button"
 								onclick={() => confirmDelete(item.book.id)}
 							>
 								Delete
 							</button>
-							<button
-								class="text-neutral-600 underline-offset-4 hover:underline dark:text-neutral-400"
-								type="button"
-								onclick={() => (pendingDeleteId = null)}
-							>
+							<button class="quiet-action" type="button" onclick={() => (pendingDeleteId = null)}>
 								Cancel
 							</button>
 						</span>
 					{:else}
 						<button
-							class="shrink-0 text-sm text-neutral-600 underline-offset-4 hover:underline dark:text-neutral-400"
+							class="quiet-action shrink-0 text-sm"
 							type="button"
 							onclick={() => (pendingDeleteId = item.book.id)}
 						>
