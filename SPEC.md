@@ -41,11 +41,10 @@ Account/cloud sync, mobile layout, editing imported text, notes/highlights, sear
 
 All chrome copy is English.
 
-| Route       | Role                                          |
-| ----------- | --------------------------------------------- |
-| `/`         | Library. This is the site home.               |
-| `/import`   | New book: title + English file + Chinese file |
-| `/book/:id` | Zen chapter reader for that book              |
+| Route       | Role                                                            |
+| ----------- | --------------------------------------------------------------- |
+| `/`         | Library. This is the site home. Import book opens a modal here. |
+| `/book/:id` | Zen chapter reader for that book                                |
 
 - Opening the site at `/` always shows the library, not the last book.
 - Reloading `/book/:id` stays on that book at the stored pair.
@@ -104,13 +103,13 @@ Single record: `{ fontSize: number }` (px). Global, all books. Not per-book. Not
 
 ### Entry
 
-Library has **Import book**. That route is a full page (not a modal):
+Library has **Import book**. That opens a modal on the library (not a separate route):
 
 1. **Title** — defaults to the English filename without extension; user may edit (metadata, not body).
 2. **English** drop/file slot (left).
 3. **Chinese** drop/file slot (right).
 
-Accept `.txt`, `.md`, `.markdown`. Drag-and-drop onto the labeled slot, or a file picker. Both slots required to submit. Cancel returns to the library.
+Accept `.txt`, `.md`, `.markdown`. Drag-and-drop onto the labeled slot, or a file picker. Both slots required to submit. Cancel or Escape closes the modal.
 
 Mixed types are allowed (txt + md) **if** the pair counts match after splitting.
 
@@ -123,7 +122,7 @@ Mixed types are allowed (txt + md) **if** the pair counts match after splitting.
 5. If either side has 0 blocks, or the two lengths differ: **do not create a book**. Show a short error that includes both counts, e.g. `Cannot import: English has 12 passages, Chinese has 10. Counts must match.` No mismatch preview.
 6. Zip by index into pairs. Assign each pair a UUID and `order = 0 .. n-1`.
 7. Persist book, pairs, and progress at the first pair. Set `openedAt` to now.
-8. Go to the library (not straight into zen).
+8. Close the modal (not straight into zen).
 
 ## 6. Splitting
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { IMPORT_ACCEPT, isImportFilename } from '$lib/import';
+	import { IMPORT_ACCEPT, isImportFilename } from './kind';
 
 	let {
 		label,

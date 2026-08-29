@@ -2,11 +2,13 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { deleteBook, markOpened } from '$lib/db';
+	import ImportDialog from '$lib/import/ImportDialog.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
 	let pendingDeleteId = $state<string | null>(null);
+	let importing = $state(false);
 
 	async function openBook(id: string) {
 		await markOpened(id);
@@ -28,13 +30,17 @@
 	<header class="mb-12 flex items-baseline justify-between gap-8">
 		<h1 class="text-2xl font-medium tracking-tight">Library</h1>
 		{#if data.items.length > 0}
-			<a class="quiet-action text-sm" href={resolve('/import')}>Import book</a>
+			<button class="quiet-action text-sm" type="button" onclick={() => (importing = true)}>
+				Import book
+			</button>
 		{/if}
 	</header>
 
 	{#if data.items.length === 0}
 		<p>
-			<a class="quiet-action" href={resolve('/import')}>Import book</a>
+			<button class="quiet-action" type="button" onclick={() => (importing = true)}>
+				Import book
+			</button>
 		</p>
 	{:else}
 		<ul class="divide-y divide-neutral-200 dark:divide-neutral-800">
@@ -74,3 +80,5 @@
 		</ul>
 	{/if}
 </main>
+
+<ImportDialog bind:open={importing} onimported={() => invalidateAll()} />
