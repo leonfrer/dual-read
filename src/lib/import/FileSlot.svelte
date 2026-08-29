@@ -28,12 +28,25 @@
 		onfile(next);
 	}
 
-	function ondragover(event: DragEvent) {
+	function ondragenter(event: DragEvent) {
 		event.preventDefault();
 		dragging = true;
 	}
 
-	function ondragleave() {
+	function ondragover(event: DragEvent) {
+		event.preventDefault();
+	}
+
+	function ondragleave(event: DragEvent) {
+		const next = event.relatedTarget;
+		if (
+			next instanceof Node &&
+			event.currentTarget instanceof Node &&
+			event.currentTarget.contains(next)
+		) {
+			return;
+		}
+
 		dragging = false;
 	}
 
@@ -49,26 +62,72 @@
 	}
 </script>
 
-<label
-	class={[
-		'block cursor-pointer rounded-sm border border-neutral-300 px-4 py-8 dark:border-neutral-700',
-		dragging && 'border-current'
-	]}
-	{ondragover}
-	{ondragleave}
-	{ondrop}
->
-	<span class="block text-sm font-medium">{label}</span>
-	<span class="mt-2 block text-sm text-neutral-600 dark:text-neutral-400">
-		{#if file}
-			{file.name}
-		{:else}
-			Drop a file, or choose one.
-		{/if}
-	</span>
-	<input class="sr-only" type="file" accept={IMPORT_ACCEPT} {onchange} />
-</label>
+<div class="well">
+	<label
+		class={['slot', dragging && 'dragging', file && 'filled']}
+		{ondragenter}
+		{ondragover}
+		{ondragleave}
+		{ondrop}
+	>
+		<span class="label">{label}</span>
+		<span class="file">
+			{#if file}
+				{file.name}
+			{:else}
+				Drop a file, or choose one.
+			{/if}
+		</span>
+		<input class="sr-only" type="file" accept={IMPORT_ACCEPT} {onchange} />
+	</label>
 
-{#if error}
-	<p class="mt-2 text-sm text-red-700 dark:text-red-400" role="alert">{error}</p>
-{/if}
+	{#if error}
+		<p class="alert" role="alert">{error}</p>
+	{/if}
+</div>
+
+<style>
+	.well {
+		min-width: 0;
+	}
+
+	.well :global(.alert) {
+		margin-top: 0.75rem;
+	}
+
+	.slot {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		min-height: 9rem;
+		cursor: pointer;
+	}
+
+	.label {
+		font-size: 0.875rem;
+		font-weight: 500;
+		transition: color 120ms ease;
+	}
+
+	.file {
+		overflow: hidden;
+		font-size: 0.875rem;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		color: color-mix(in oklab, CanvasText 55%, transparent);
+		transition: color 120ms ease;
+	}
+
+	.filled .file,
+	.dragging .label,
+	.dragging .file {
+		color: CanvasText;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.label,
+		.file {
+			transition: none;
+		}
+	}
+</style>

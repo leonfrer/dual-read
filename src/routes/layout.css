@@ -13,15 +13,163 @@ body {
 	font-family: ui-sans-serif, system-ui, sans-serif;
 }
 
+:focus-visible {
+	outline: 1px solid CanvasText;
+	outline-offset: 2px;
+}
+
 .quiet-action {
 	color: color-mix(in oklab, CanvasText 68%, transparent);
 	text-decoration: none;
+	transition: color 120ms ease;
 }
 
-.quiet-action:hover:not(:disabled) {
+.quiet-action:hover:not(:disabled),
+.quiet-action:focus-visible:not(:disabled) {
 	color: CanvasText;
 }
 
 .quiet-action:disabled {
 	opacity: 0.4;
+}
+
+.danger-action {
+	color: #b42318;
+	text-decoration: none;
+	transition: color 120ms ease;
+}
+
+.danger-action:hover:not(:disabled),
+.danger-action:focus-visible:not(:disabled) {
+	color: #8c1d12;
+}
+
+.danger-action:disabled {
+	opacity: 0.4;
+}
+
+@media (prefers-color-scheme: dark) {
+	.danger-action {
+		color: #f97066;
+	}
+
+	.danger-action:hover:not(:disabled),
+	.danger-action:focus-visible:not(:disabled) {
+		color: #fda29b;
+	}
+}
+
+.sheet {
+	width: min(32rem, calc(100% - 4rem));
+	max-height: calc(100dvh - 4rem);
+	margin: auto;
+	padding: 0;
+	overflow: auto;
+	color: CanvasText;
+	background: Canvas;
+	border: 0;
+	border-radius: 1.5rem;
+	box-shadow: 0 1.25rem 2.5rem color-mix(in oklab, black 16%, transparent);
+	opacity: 0;
+	transform: translateY(0.75rem) scale(0.98);
+	transition:
+		display 220ms allow-discrete,
+		overlay 220ms allow-discrete,
+		opacity 220ms ease,
+		transform 220ms ease;
+}
+
+.sheet[open] {
+	opacity: 1;
+	transform: none;
+}
+
+@starting-style {
+	.sheet[open] {
+		opacity: 0;
+		transform: translateY(0.75rem) scale(0.98);
+	}
+}
+
+.sheet::backdrop {
+	background: color-mix(in oklab, black 40%, transparent);
+	opacity: 0;
+	transition:
+		display 220ms allow-discrete,
+		overlay 220ms allow-discrete,
+		opacity 220ms ease;
+}
+
+.sheet[open]::backdrop {
+	opacity: 1;
+}
+
+@starting-style {
+	.sheet[open]::backdrop {
+		opacity: 0;
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	.sheet::backdrop {
+		background: color-mix(in oklab, black 58%, transparent);
+	}
+}
+
+.sheet-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 2.5rem;
+	padding: 2.75rem 2.5rem 2.25rem;
+}
+
+.sheet-header {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 2rem;
+}
+
+.sheet-header h2 {
+	margin: 0;
+	font-size: 1.5rem;
+	font-weight: 500;
+	letter-spacing: -0.025em;
+}
+
+.alert {
+	margin: 0;
+	font-size: 0.875rem;
+	color: #b42318;
+}
+
+@media (prefers-color-scheme: dark) {
+	.alert {
+		color: #f97066;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.quiet-action,
+	.danger-action,
+	.sheet,
+	.sheet::backdrop {
+		transition: none;
+	}
+
+	.sheet,
+	.sheet[open] {
+		transform: none;
+	}
+
+	@starting-style {
+		.sheet[open] {
+			opacity: 1;
+			transform: none;
+		}
+
+		.sheet[open]::backdrop {
+			opacity: 1;
+		}
+	}
 }

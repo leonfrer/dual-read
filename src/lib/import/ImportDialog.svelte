@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { importBook, readUtf8File, titleFromFilename } from '$lib/import';
+	import { waitForSheetExit } from '$lib/sheet';
 	import FileSlot from './FileSlot.svelte';
 
 	let {
@@ -20,8 +21,9 @@
 	let busy = $state(false);
 
 	let canSubmit = $derived(english !== null && chinese !== null && !busy);
+	let dialog: HTMLDialogElement | null = null;
 
-	function dismiss() {
+	function reset() {
 		open = false;
 		title = '';
 		autoTitle = '';
@@ -29,6 +31,10 @@
 		chinese = null;
 		error = '';
 		busy = false;
+	}
+
+	function dismiss() {
+		dialog?.close();
 	}
 
 	function setEnglish(file: File) {
@@ -54,7 +60,7 @@
 			const bookTitle = title.trim() || titleFromFilename(english.name);
 			await importBook({ title: bookTitle, english: en, chinese: zh });
 			await onimported();
-			dismiss();
+			dialog?.close();
 		} catch (caught) {
 			error = caught instanceof Error ? caught.message : 'Could not import.';
 		} finally {
@@ -63,8 +69,10 @@
 	}
 
 	function attachDialog(element: HTMLDialogElement) {
+		dialog = element;
+
 		function onclose() {
-			dismiss();
+			waitForSheetExit(element, reset);
 		}
 
 		element.addEventListener('close', onclose);
@@ -72,6 +80,9 @@
 
 		return () => {
 			element.removeEventListener('close', onclose);
+			if (dialog === element) {
+				dialog = null;
+			}
 			if (element.open) {
 				element.close();
 			}
@@ -87,63 +98,100 @@
 
 {#if open}
 	<dialog
-		class="import-dialog"
+		class="sheet import-sheet"
 		aria-labelledby="{uid}-title"
 		{@attach attachDialog}
 		onclick={ondialogclick}
 	>
-		<div class="import-panel">
-			<header class="mb-10 flex items-baseline justify-between gap-8">
-				<h2 class="text-2xl font-medium tracking-tight" id="{uid}-title">Import book</h2>
-				<button class="quiet-action text-sm" type="button" onclick={dismiss}> Cancel </button>
+		<div class="sheet-panel">
+			<header class="sheet-header">
+				<h2 id="{uid}-title">Import book</h2>
+				<button class="quiet-action text-sm" type="button" onclick={dismiss}>Cancel</button>
 			</header>
 
-			<form class="flex flex-col gap-8" {onsubmit}>
-				<label class="block">
-					<span class="text-sm font-medium">Title</span>
-					<input
-						class="mt-2 w-full border-b border-neutral-300 bg-transparent py-1 outline-none dark:border-neutral-700"
-						bind:value={title}
-						name="title"
-					/>
+			<form class="form" {onsubmit}>
+				<label class="field">
+					<span>Title</span>
+					<input bind:value={title} name="title" />
 				</label>
 
-				<div class="grid grid-cols-2 gap-6">
+				<div class="wells">
 					<FileSlot label="English" file={english} onfile={setEnglish} />
 					<FileSlot label="Chinese" file={chinese} onfile={(file) => (chinese = file)} />
 				</div>
 
 				{#if error}
-					<p class="text-sm text-red-700 dark:text-red-400" role="alert">{error}</p>
+					<p class="alert" role="alert">{error}</p>
 				{/if}
 
-				<div>
-					<button class="quiet-action text-sm" type="submit" disabled={!canSubmit}>
-						{busy ? 'Importing…' : 'Import book'}
-					</button>
-				</div>
+				<button class="quiet-action text-sm" type="submit" disabled={!canSubmit}>
+					{busy ? 'Importing…' : 'Import book'}
+				</button>
 			</form>
 		</div>
 	</dialog>
 {/if}
 
 <style>
-	.import-dialog {
-		width: min(48rem, calc(100% - 4rem));
-		max-height: calc(100dvh - 4rem);
-		margin: auto;
-		padding: 0;
-		overflow: auto;
-		color: CanvasText;
-		background: Canvas;
-		border: 1px solid color-mix(in oklab, CanvasText 12%, transparent);
+	.import-sheet {
+		width: min(42rem, calc(100% - 4rem));
 	}
 
-	.import-dialog::backdrop {
-		background: color-mix(in oklab, CanvasText 18%, transparent);
+	.form {
+		display: flex;
+		flex-direction: column;
+		gap: 2.25rem;
 	}
 
-	.import-panel {
-		padding: 2.5rem 2rem 2rem;
+	.field {
+		display: grid;
+		gap: 0.5rem;
+	}
+
+	.field span {
+		font-size: 0.875rem;
+		font-weight: 500;
+	}
+
+	.field input {
+		width: 100%;
+		padding: 0.35rem 0 0.6rem;
+		font: inherit;
+		color: inherit;
+		background: transparent;
+		border: 0;
+		border-bottom: 1px solid color-mix(in oklab, CanvasText 12%, transparent);
+		border-radius: 0;
+		transition: border-color 120ms ease;
+	}
+
+	.field input:hover,
+	.field input:focus-visible {
+		outline: none;
+		border-bottom-color: CanvasText;
+	}
+
+	.wells {
+		position: relative;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		column-gap: 3rem;
+	}
+
+	.wells::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 50%;
+		width: 1px;
+		background: color-mix(in oklab, CanvasText 12%, transparent);
+		pointer-events: none;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.field input {
+			transition: none;
+		}
 	}
 </style>

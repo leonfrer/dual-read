@@ -9,6 +9,7 @@
 		type Book,
 		type Pair
 	} from '$lib/db';
+	import { openingBook } from '$lib/opening.svelte';
 	import {
 		DIM_OPACITY,
 		FOCUS_MS,
@@ -157,6 +158,7 @@
 			window.setTimeout(() => {
 				ignoreSpy = false;
 			}, 32);
+			openingBook.pending = false;
 		});
 
 		return () => {

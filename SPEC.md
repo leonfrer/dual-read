@@ -2,7 +2,9 @@
 
 Personal desktop reader for English–Chinese bilingual books. No backend. The user imports two documents and reads them as aligned pairs in a zen two-column chapter: the current pair is lit, the other pairs are dim.
 
-This spec is the v1 contract. Later features (in-place pair editing, quote-anchored notes) constrain the v1 data model but are not in the v1 UI.
+This spec is the v1 contract for product behavior, data, and import. Later features (in-place pair editing, quote-anchored notes) constrain the v1 data model but are not in the v1 UI.
+
+Presentation — color, type, spacing, chrome styling, and motion — describes the current UI. It may be revised without a schema change.
 
 ## 1. Product
 
@@ -26,11 +28,11 @@ This spec is the v1 contract. Later features (in-place pair editing, quote-ancho
 - Resume a book at the last pair
 - Zen reading: a flowing two-column chapter; the current pair is lit and the rest are dim
 - Remember font size globally
-- Follow the OS light/dark scheme
+- Color scheme currently follows the OS
 
 ### v1 does not
 
-Account/cloud sync, mobile layout, editing imported text, notes/highlights, search, table of contents, EPUB/PDF/Word, export/backup, TTS, pop-up translation, auto-alignment, bundled sample book, in-app theme switch, a second reading mode, page-turn or slide animation.
+Account/cloud sync, mobile layout, editing imported text, notes/highlights, search, table of contents, EPUB/PDF/Word, export/backup, TTS, pop-up translation, auto-alignment, bundled sample book, a second reading mode.
 
 ### Later (no v1 UI; v1 schema must not paint us into a corner)
 
@@ -91,7 +93,7 @@ Display `n/N` as 1-based position of `pairId` in `order`. If `pairId` is missing
 
 ### `prefs`
 
-Single record: `{ fontSize: number }` (px). Global, all books. Not per-book. Not theme — theme follows the OS.
+Single record: `{ fontSize: number }` (px). Global, all books. Not per-book. Theme is not stored; color currently follows the OS.
 
 ### Not stored in v1
 
@@ -190,15 +192,17 @@ Delete removes the book, its pairs, and its progress row.
 
 ## 9. Reader (zen)
 
+Reader **behavior** (what is current, how you move, what chrome does) is the contract. Figures for type, color, spacing, and motion below are the current presentation.
+
 ### Layout
 
 - The whole book is a two-column **chapter** in document flow (stacked pair rows). Virtualize only if needed; the UX is the full chapter, not a window of N neighbors, and not a one-pair slideshow.
-- Each row is one pair: English left, Chinese right, **50/50**, not a draggable splitter. When the two sides differ in height, **top-align**; the shorter side leaves empty space below.
-- The current pair is at full contrast. Other pairs are dim (~40% contrast), not blurred, still readable and selectable. Lighting is the whole row (both sides). There is no second mode and no zen toggle.
-- Each column has a max width of about 28–32rem. The gutter is about 3rem with a faint vertical rule. The pair is centered. Do not stretch columns to the full viewport width.
-- Pair rows are spaced like consecutive paragraphs (~1.25–1.5em), not cards.
-- System light/dark (`prefers-color-scheme`). No in-app theme toggle.
-- System fonts. UI chrome, library, and import use `ui-sans-serif`. Passage text uses `lang="en"` with a system serif (ui-serif / Georgia) and `lang="zh-Hans"` with a system Song / PingFang stack. No webfonts.
+- Each row is one pair: English left, Chinese right, currently **50/50**, with no splitter. When the two sides differ in height, **top-align**; the shorter side leaves empty space below.
+- The current pair is at full contrast. Other pairs are dim, still readable and selectable. Lighting is the whole row (both sides). Currently dim is ~40% opacity. There is no second mode and no zen toggle.
+- Columns currently max about 28–32rem, with a ~3rem gutter and a faint vertical rule. The pair is currently centered rather than stretched to the full viewport width.
+- Pair rows are currently spaced like consecutive paragraphs (~1.25–1.5em).
+- Color currently follows the OS (`prefers-color-scheme`).
+- Type currently uses system fonts: UI chrome, library, and import use `ui-sans-serif`. Passage text uses `lang="en"` with a system serif (ui-serif / Georgia) and `lang="zh-Hans"` with a system Song / PingFang stack.
 - Native text selection is allowed (comparison).
 
 ### Focus
@@ -216,9 +220,9 @@ Hidden until the pointer is near a window edge (top/bottom). Then:
 - `A+` / `A-` (global font size, persisted; applies to passage text only)
 - Exit → library
 
-Quiet text controls: no persistent underline, no icons, no capsule buttons. Hover raises contrast. There is **no slider in the chrome**.
+Chrome currently uses quiet text controls (no persistent underline, no icons, no capsule buttons). Hover raises contrast. Progress is not a slider inside this bar.
 
-A **full-width progress hairline** stays at the bottom of the window. It is the scrubber (jump to any pair by position; persist immediately). Hover or drag shows `n/N`. When the bottom chrome appears, it sits above the hairline; the hairline does not hide.
+A **full-width progress control** stays at the bottom of the window (currently a hairline). It is the scrubber (jump to any pair by position; persist immediately). Hover or drag shows `n/N`. When the bottom chrome appears, it sits above this control; the control does not hide.
 
 No onboarding. No notes placeholder. No import. There is no import control inside zen; leave to the library first.
 
@@ -232,9 +236,9 @@ No onboarding. No notes placeholder. No import. There is no import control insid
 | Wheel / trackpad       | Scroll the chapter like a document. The pair on the reading band becomes current and is persisted. Programmatic smooth scrolls do not light intermediate pairs. |
 | Click a pair (no drag) | That pair becomes current and scrolls to the reading band                                                                                                       |
 | Drag on a pair         | Select text only                                                                                                                                                |
-| Progress hairline      | Jump to that pair; persist immediately; snap scroll                                                                                                             |
+| Progress control       | Jump to that pair; persist immediately; currently snap scroll                                                                                                   |
 
-No page-turn or slide animation. Focus opacity ~150–200ms; keyboard and click scrolling is `smooth`. `prefers-reduced-motion: reduce` makes both instant. Hairline scrubbing snaps without a smooth scroll.
+Motion currently: focus opacity ~150–200ms; keyboard and click scrolling is `smooth`; `prefers-reduced-motion: reduce` makes both instant; scrubbing the progress control snaps without a smooth scroll.
 
 Opening a book from the library sets `openedAt` and restores `pairId`.
 
@@ -270,5 +274,5 @@ v1 is done when:
 6. Reloading `/book/:id` does not dump the user on `/`.
 7. The reader shows a two-column chapter, English left; the current pair is lit and other pairs are dim; Home, End, click, wheel, and the progress hairline move; a drag selects text without changing pair; a click without a drag focuses that pair.
 8. Delete with confirm removes the book.
-9. Dark/light follows the OS; font size survives reload and applies to every book.
+9. Font size survives reload and applies to every book. Color currently follows the OS.
 10. There is no path in the UI to edit text, add a note, search, or open a TOC.
