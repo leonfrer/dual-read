@@ -214,7 +214,6 @@ Hidden until the pointer is near a window edge (top/bottom). Then:
 
 - Title
 - `n/N`
-- Previous / Next
 - `A+` / `A-` (global font size, persisted; applies to passage text only)
 - Exit → library
 
@@ -228,19 +227,13 @@ No onboarding. No notes placeholder. No import. There is no import control insid
 
 | Input                  | Action                                                                                                                                                          |
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `←` `j`                | Previous pair; scroll so its top sits on the reading band                                                                                                       |
-| `→` `k` Space          | Next pair; same alignment                                                                                                                                       |
-| Shift+Space            | Previous pair                                                                                                                                                   |
 | Home                   | First pair, on the reading band                                                                                                                                 |
 | End                    | Last pair, on the reading band                                                                                                                                  |
 | Esc                    | Library                                                                                                                                                         |
 | Wheel / trackpad       | Scroll the chapter like a document. The pair on the reading band becomes current and is persisted. Programmatic smooth scrolls do not light intermediate pairs. |
 | Click a pair (no drag) | That pair becomes current and scrolls to the reading band                                                                                                       |
 | Drag on a pair         | Select text only                                                                                                                                                |
-| Hover Previous/Next    | Same as keys                                                                                                                                                    |
 | Progress hairline      | Jump to that pair; persist immediately; snap scroll                                                                                                             |
-
-At the first pair, Previous is disabled. At the last pair, Next is disabled. **No wrap.** Next on the last pair does not kick the user to the library.
 
 No page-turn or slide animation. Focus opacity ~150–200ms; keyboard and click scrolling is `smooth`. `prefers-reduced-motion: reduce` makes both instant. Hairline scrubbing snaps without a smooth scroll.
 
@@ -276,7 +269,7 @@ v1 is done when:
 4. Txt + markdown imports succeed when counts match.
 5. Reloading the browser keeps books and the current pair.
 6. Reloading `/book/:id` does not dump the user on `/`.
-7. The reader shows a two-column chapter, English left; the current pair is lit and other pairs are dim; keyboard, click, wheel, and the progress hairline move; ends do not wrap; a drag selects text without changing pair; a click without a drag focuses that pair.
+7. The reader shows a two-column chapter, English left; the current pair is lit and other pairs are dim; Home, End, click, wheel, and the progress hairline move; a drag selects text without changing pair; a click without a drag focuses that pair.
 8. Delete with confirm removes the book.
 9. Dark/light follows the OS; font size survives reload and applies to every book.
 10. There is no path in the UI to edit text, add a note, search, or open a TOC.

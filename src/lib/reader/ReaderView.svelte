@@ -38,8 +38,6 @@
 	// svelte-ignore state_referenced_locally
 	let size = $state(fontSize);
 	let position = $derived(index + 1);
-	let atFirst = $derived(index <= 0);
-	let atLast = $derived(index >= pairs.length - 1);
 	let fillPercent = $derived(hairlinePercent(position, book.pairCount));
 
 	let hoveringChrome = $state(false);
@@ -214,12 +212,7 @@
 			return;
 		}
 
-		if (movement === 'last') {
-			void go(pairs.length - 1, 'key');
-			return;
-		}
-
-		void go(index + (movement === 'next' ? 1 : -1), 'key');
+		void go(pairs.length - 1, 'key');
 	}
 
 	function onslider(event: Event) {
@@ -337,22 +330,6 @@
 			<p class="shrink-0 text-current/70 tabular-nums" data-progress-label>
 				{position}/{book.pairCount}
 			</p>
-			<button
-				class="quiet-action"
-				type="button"
-				disabled={atFirst}
-				onclick={() => go(index - 1, 'key')}
-			>
-				Previous
-			</button>
-			<button
-				class="quiet-action"
-				type="button"
-				disabled={atLast}
-				onclick={() => go(index + 1, 'key')}
-			>
-				Next
-			</button>
 			<button
 				class="quiet-action"
 				type="button"
