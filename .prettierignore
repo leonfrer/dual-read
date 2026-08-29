@@ -7,3 +7,6 @@ bun.lockb
 
 # Miscellaneous
 /static/
+
+# Import fixtures are sample source files, not formatted project copy
+/src/lib/import/fixtures/
