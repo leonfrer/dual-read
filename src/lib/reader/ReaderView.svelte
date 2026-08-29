@@ -10,6 +10,8 @@
 		type Pair
 	} from '$lib/db';
 	import { openingBook } from '$lib/opening.svelte';
+	import { prefersReducedMotion } from 'svelte/motion';
+	import { fade } from 'svelte/transition';
 	import {
 		DIM_OPACITY,
 		FOCUS_MS,
@@ -47,16 +49,13 @@
 	let hairlineHover = $state(false);
 	let hairlineActive = $state(false);
 	let scroller = $state<HTMLDivElement | null>(null);
+	let motionMs = $derived(prefersReducedMotion.current ? 0 : 180);
 
 	let ignoreSpy = false;
 	let selecting = false;
 	let goToken = 0;
 	let spyFrame = 0;
 	let pointerStart = { x: 0, y: 0, index: -1 };
-
-	function prefersReducedMotion(): boolean {
-		return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-	}
 
 	function pairRows(): HTMLElement[] {
 		if (!scroller) {
@@ -133,7 +132,7 @@
 			return;
 		}
 
-		const instant = origin === 'scrub' || prefersReducedMotion();
+		const instant = origin === 'scrub' || prefersReducedMotion.current;
 		const token = ++goToken;
 		ignoreSpy = true;
 		scroller.scrollTo({
@@ -309,12 +308,7 @@
 	</div>
 
 	<div
-		class={[
-			'absolute inset-x-0 z-20 px-8 py-4 text-sm',
-			dock === 'top' ? 'top-0' : 'bottom-3',
-			chromeVisible ? 'opacity-100' : 'pointer-events-none opacity-0'
-		]}
-		style:background="Canvas"
+		class="chrome"
 		role="navigation"
 		aria-label="Reader"
 		data-chrome
@@ -327,9 +321,9 @@
 			chromeVisible = false;
 		}}
 	>
-		<div class="mx-auto flex max-w-[67rem] flex-wrap items-center gap-x-5 gap-y-2">
-			<p class="min-w-0 flex-1 truncate font-medium text-current">{book.title}</p>
-			<p class="shrink-0 text-current/70 tabular-nums" data-progress-label>
+		<div class="chrome-row">
+			<p class="chrome-title">{book.title}</p>
+			<p class="chrome-progress" data-progress-label>
 				{position}/{book.pairCount}
 			</p>
 			<button
@@ -355,7 +349,7 @@
 	</div>
 
 	<div
-		class="hairline"
+		class={['hairline', hairlineActive && 'scrubbing']}
 		role="group"
 		aria-label="Reading progress"
 		data-progress-hairline
@@ -385,7 +379,7 @@
 			}}
 		/>
 		{#if hairlineHover || hairlineActive}
-			<p class="hairline-label" data-hairline-label>
+			<p class="hairline-label" data-hairline-label transition:fade={{ duration: motionMs }}>
 				{position}/{book.pairCount}
 			</p>
 		{/if}
@@ -396,6 +390,8 @@
 	.chapter-scroll {
 		position: relative;
 		overscroll-behavior: contain;
+		scrollbar-width: thin;
+		scrollbar-color: color-mix(in oklab, CanvasText 22%, transparent) transparent;
 	}
 
 	.chapter-pad {
@@ -407,6 +403,7 @@
 		position: relative;
 		width: min(100% - 4rem, 67rem);
 		margin-inline: auto;
+		animation: chapter-in 360ms ease-out;
 	}
 
 	.chapter::before {
@@ -416,27 +413,126 @@
 		bottom: 0;
 		left: 50%;
 		width: 1px;
-		background: color-mix(in oklab, CanvasText 12%, transparent);
+		background: color-mix(in oklab, CanvasText 8%, transparent);
 		pointer-events: none;
 	}
 
+	.chapter ::selection {
+		background: color-mix(in oklab, CanvasText 16%, transparent);
+	}
+
 	.pair {
+		position: relative;
 		display: flex;
 		align-items: flex-start;
 		gap: 3rem;
-		padding-block: 0.7em;
+		padding-block: 1.1em;
 		opacity: var(--dim-opacity, 0.4);
 		transition: opacity var(--focus-ms, 180ms) ease;
+	}
+
+	.pair::after {
+		content: '';
+		position: absolute;
+		top: 0.55em;
+		bottom: 0.55em;
+		left: 50%;
+		width: 1px;
+		background: CanvasText;
+		opacity: 0;
+		transform: translateX(-50%) scaleY(0.64);
+		transform-origin: center;
+		transition:
+			opacity calc(var(--focus-ms, 180ms) + 40ms) ease,
+			transform calc(var(--focus-ms, 180ms) + 40ms) ease;
+		pointer-events: none;
 	}
 
 	.pair.current {
 		opacity: 1;
 	}
 
+	.pair.current::after {
+		opacity: 0.38;
+		transform: translateX(-50%) scaleY(1);
+	}
+
 	.column {
 		min-width: 0;
 		flex: 1 1 0;
 		max-width: 32rem;
+	}
+
+	.chrome {
+		position: absolute;
+		z-index: 20;
+		inset-inline: 0;
+		padding: 1.35rem 2rem 1.85rem;
+		font-size: 0.8125rem;
+		background: linear-gradient(
+			to bottom,
+			Canvas 0%,
+			Canvas 48%,
+			color-mix(in oklab, Canvas 72%, transparent) 76%,
+			transparent
+		);
+		transition:
+			opacity 200ms ease,
+			transform 200ms ease;
+	}
+
+	.chrome[data-chrome-dock='top'] {
+		top: 0;
+	}
+
+	.chrome[data-chrome-dock='bottom'] {
+		bottom: 0.75rem;
+		padding: 1.85rem 2rem 1.15rem;
+		background: linear-gradient(
+			to top,
+			Canvas 0%,
+			Canvas 42%,
+			color-mix(in oklab, Canvas 72%, transparent) 76%,
+			transparent
+		);
+	}
+
+	.chrome[data-chrome-visible='false'] {
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	.chrome[data-chrome-dock='top'][data-chrome-visible='false'] {
+		transform: translateY(-0.35rem);
+	}
+
+	.chrome[data-chrome-dock='bottom'][data-chrome-visible='false'] {
+		transform: translateY(0.35rem);
+	}
+
+	.chrome-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem 1.25rem;
+		width: min(100%, 67rem);
+		margin-inline: auto;
+	}
+
+	.chrome-title {
+		min-width: 0;
+		flex: 1 1 auto;
+		overflow: hidden;
+		font-weight: 500;
+		letter-spacing: -0.015em;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.chrome-progress {
+		flex-shrink: 0;
+		font-variant-numeric: tabular-nums;
+		color: color-mix(in oklab, CanvasText 68%, transparent);
 	}
 
 	.hairline {
@@ -460,23 +556,53 @@
 
 	.hairline-track {
 		right: var(--hairline-inset);
-		background: color-mix(in oklab, CanvasText 18%, transparent);
+		background: color-mix(in oklab, CanvasText 16%, transparent);
+		transition:
+			height 160ms ease,
+			background-color 160ms ease;
 	}
 
 	.hairline-fill {
 		width: calc((100% - 2 * var(--hairline-inset)) * var(--pct, 0) / 100);
-		background: color-mix(in oklab, CanvasText 45%, transparent);
+		background: color-mix(in oklab, CanvasText 48%, transparent);
+		transition:
+			width 180ms ease,
+			height 160ms ease,
+			background-color 160ms ease;
 	}
 
 	.hairline-thumb {
 		position: absolute;
 		top: 50%;
 		left: calc(var(--hairline-inset) + (100% - 2 * var(--hairline-inset)) * var(--pct, 0) / 100);
-		width: 8px;
+		width: 1.5px;
 		height: 8px;
-		border-radius: 999px;
+		border-radius: 1px;
 		background: CanvasText;
 		transform: translate(-50%, -50%);
+		transition:
+			left 180ms ease,
+			height 160ms ease;
+	}
+
+	.hairline:hover .hairline-track,
+	.hairline:focus-within .hairline-track,
+	.hairline.scrubbing .hairline-track,
+	.hairline:hover .hairline-fill,
+	.hairline:focus-within .hairline-fill,
+	.hairline.scrubbing .hairline-fill {
+		height: 2px;
+	}
+
+	.hairline:hover .hairline-thumb,
+	.hairline:focus-within .hairline-thumb,
+	.hairline.scrubbing .hairline-thumb {
+		height: 12px;
+	}
+
+	.hairline.scrubbing .hairline-fill,
+	.hairline.scrubbing .hairline-thumb {
+		transition: none;
 	}
 
 	.hairline input[type='range'] {
@@ -507,24 +633,46 @@
 
 	.hairline-label {
 		position: absolute;
-		bottom: 14px;
+		bottom: 16px;
 		left: clamp(
 			2.25rem,
 			calc(var(--hairline-inset) + (100% - 2 * var(--hairline-inset)) * var(--pct, 0) / 100),
 			calc(100% - 2.25rem)
 		);
-		padding: 0.1em 0.4em;
-		font-size: 0.75rem;
+		padding: 0.12em 0.45em;
+		font-size: 0.6875rem;
 		font-variant-numeric: tabular-nums;
-		color: CanvasText;
+		color: color-mix(in oklab, CanvasText 82%, transparent);
 		background: Canvas;
 		transform: translateX(-50%);
 		pointer-events: none;
 	}
 
+	@keyframes chapter-in {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
 	@media (prefers-reduced-motion: reduce) {
-		.pair {
+		.chapter {
+			animation: none;
+		}
+
+		.pair,
+		.pair::after,
+		.chrome,
+		.hairline-track,
+		.hairline-fill,
+		.hairline-thumb {
 			transition: none;
+		}
+
+		.chrome[data-chrome-visible='false'] {
+			transform: none;
 		}
 	}
 </style>

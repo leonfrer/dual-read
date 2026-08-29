@@ -199,8 +199,8 @@ Reader **behavior** (what is current, how you move, what chrome does) is the con
 - The whole book is a two-column **chapter** in document flow (stacked pair rows). Virtualize only if needed; the UX is the full chapter, not a window of N neighbors, and not a one-pair slideshow.
 - Each row is one pair: English left, Chinese right, currently **50/50**, with no splitter. When the two sides differ in height, **top-align**; the shorter side leaves empty space below.
 - The current pair is at full contrast. Other pairs are dim, still readable and selectable. Lighting is the whole row (both sides). Currently dim is ~40% opacity. There is no second mode and no zen toggle.
-- Columns currently max about 28–32rem, with a ~3rem gutter and a faint vertical rule. The pair is currently centered rather than stretched to the full viewport width.
-- Pair rows are currently spaced like consecutive paragraphs (~1.25–1.5em).
+- Columns currently max about 28–32rem, with a ~3rem gutter and a faint vertical rule. The gutter mark on the current pair brightens and unfurls; the pair is currently centered rather than stretched to the full viewport width.
+- Pair rows are currently spaced like consecutive paragraphs (~1.1em padding).
 - Color currently follows the OS (`prefers-color-scheme`).
 - Type currently uses system fonts: UI chrome, library, and import use `ui-sans-serif`. Passage text uses `lang="en"` with a system serif (ui-serif / Georgia) and `lang="zh-Hans"` with a system Song / PingFang stack.
 - Native text selection is allowed (comparison).
@@ -220,9 +220,9 @@ Hidden until the pointer is near a window edge (top/bottom). Then:
 - `A+` / `A-` (global font size, persisted; applies to passage text only)
 - Exit → library
 
-Chrome currently uses quiet text controls (no persistent underline, no icons, no capsule buttons). Hover raises contrast. Progress is not a slider inside this bar.
+Chrome currently uses quiet text controls (no persistent underline, no icons, no capsule buttons) on a gradient veil. Hover raises contrast. Progress is not a slider inside this bar.
 
-A **full-width progress control** stays at the bottom of the window (currently a hairline). It is the scrubber (jump to any pair by position; persist immediately). Hover or drag shows `n/N`. When the bottom chrome appears, it sits above this control; the control does not hide.
+A **full-width progress control** stays at the bottom of the window (currently a hairline with a tick). It is the scrubber (jump to any pair by position; persist immediately). Hover or drag shows `n/N`. When the bottom chrome appears, it sits above this control; the control does not hide.
 
 No onboarding. No notes placeholder. No import. There is no import control inside zen; leave to the library first.
 
@@ -238,7 +238,7 @@ No onboarding. No notes placeholder. No import. There is no import control insid
 | Drag on a pair         | Select text only                                                                                                                                                |
 | Progress control       | Jump to that pair; persist immediately; currently snap scroll                                                                                                   |
 
-Motion currently: focus opacity ~150–200ms; keyboard and click scrolling is `smooth`; `prefers-reduced-motion: reduce` makes both instant; scrubbing the progress control snaps without a smooth scroll.
+Motion currently: chapter fade-in on open (~360ms); focus opacity ~150–200ms with the gutter mark easing beside it; chrome veil fades and slides (~200ms); keyboard and click scrolling is `smooth`; hairline fill eases except while scrubbing; `prefers-reduced-motion: reduce` makes motion instant; scrubbing the progress control snaps without a smooth scroll.
 
 Opening a book from the library sets `openedAt` and restores `pairId`.
 
