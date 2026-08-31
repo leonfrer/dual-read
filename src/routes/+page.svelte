@@ -57,7 +57,7 @@
 
 	{#if data.items.length === 0}
 		<div class="empty">
-			<button class="quiet-action empty-import" type="button" onclick={() => (importing = true)}>
+			<button class="primary-action" type="button" onclick={() => (importing = true)}>
 				Import book
 			</button>
 			<p class="empty-hint">English and Chinese files. Passage counts must match.</p>
@@ -135,15 +135,10 @@
 		gap: 0.75rem;
 	}
 
-	.empty-import {
-		font-size: 1.125rem;
-	}
-
 	.empty-hint {
 		margin: 0;
-		max-width: 22rem;
 		font-size: 0.875rem;
-		color: color-mix(in oklab, var(--ink) 68%, transparent);
+		color: color-mix(in oklab, var(--ink) 55%, transparent);
 	}
 
 	.shelf {

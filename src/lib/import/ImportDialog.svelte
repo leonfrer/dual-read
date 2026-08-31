@@ -124,7 +124,7 @@
 					<p class="alert" role="alert">{error}</p>
 				{/if}
 
-				<button class="quiet-action text-sm" type="submit" disabled={!canSubmit}>
+				<button class="primary-action" type="submit" disabled={!canSubmit}>
 					{busy ? 'Importing…' : 'Import book'}
 				</button>
 			</form>
