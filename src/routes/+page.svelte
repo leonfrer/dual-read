@@ -143,7 +143,7 @@
 		margin: 0;
 		max-width: 22rem;
 		font-size: 0.875rem;
-		color: color-mix(in oklab, CanvasText 68%, transparent);
+		color: color-mix(in oklab, var(--ink) 68%, transparent);
 	}
 
 	.shelf {
@@ -178,27 +178,27 @@
 		font-weight: 500;
 		text-overflow: ellipsis;
 		white-space: nowrap;
-		color: color-mix(in oklab, CanvasText 82%, transparent);
+		color: color-mix(in oklab, var(--ink) 82%, transparent);
 		transition: color 120ms ease;
 	}
 
 	.book:hover .title,
 	.open:hover .title,
 	.open:focus-visible .title {
-		color: CanvasText;
+		color: var(--ink);
 	}
 
 	.count {
 		font-size: 0.875rem;
 		font-variant-numeric: tabular-nums;
-		color: color-mix(in oklab, CanvasText 55%, transparent);
+		color: color-mix(in oklab, var(--ink) 55%, transparent);
 	}
 
 	.bar {
 		display: block;
 		height: 1px;
 		margin-top: 0.35rem;
-		background: color-mix(in oklab, CanvasText 12%, transparent);
+		background: color-mix(in oklab, var(--ink) 12%, transparent);
 	}
 
 	.bar::after {
@@ -206,7 +206,7 @@
 		width: var(--pct, 0%);
 		height: 100%;
 		content: '';
-		background: color-mix(in oklab, CanvasText 45%, transparent);
+		background: color-mix(in oklab, var(--ink) 45%, transparent);
 	}
 
 	.delete {
@@ -221,7 +221,7 @@
 
 	@media (hover: none) {
 		.title {
-			color: CanvasText;
+			color: var(--ink);
 		}
 	}
 

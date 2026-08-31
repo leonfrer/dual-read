@@ -1,8 +1,28 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 
+:root {
+	--paper: Canvas;
+	--ink: CanvasText;
+}
+
+@media (prefers-color-scheme: light) {
+	:root {
+		--paper: #f2e6c0;
+		--ink: #262218;
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--paper: #14120c;
+		--ink: #f2e6c0;
+	}
+}
+
 html {
 	color-scheme: light dark;
+	background: var(--paper);
 	-webkit-text-size-adjust: 100%;
 	-webkit-tap-highlight-color: transparent;
 	touch-action: manipulation;
@@ -11,30 +31,30 @@ html {
 body {
 	margin: 0;
 	min-height: 100dvh;
-	background: Canvas;
-	color: CanvasText;
+	background: var(--paper);
+	color: var(--ink);
 	font-family: ui-sans-serif, system-ui, sans-serif;
 }
 
 :focus-visible {
-	outline: 1px solid CanvasText;
+	outline: 1px solid var(--ink);
 	outline-offset: 2px;
 }
 
 .quiet-action {
-	color: color-mix(in oklab, CanvasText 68%, transparent);
+	color: color-mix(in oklab, var(--ink) 68%, transparent);
 	text-decoration: none;
 	transition: color 120ms ease;
 }
 
 .quiet-action:hover:not(:disabled),
 .quiet-action:focus-visible:not(:disabled) {
-	color: CanvasText;
+	color: var(--ink);
 }
 
 @media (hover: none) {
 	.quiet-action {
-		color: color-mix(in oklab, CanvasText 82%, transparent);
+		color: color-mix(in oklab, var(--ink) 82%, transparent);
 	}
 }
 
@@ -74,8 +94,8 @@ body {
 	margin: auto;
 	padding: 0;
 	overflow: auto;
-	color: CanvasText;
-	background: Canvas;
+	color: var(--ink);
+	background: var(--paper);
 	border: 0;
 	border-radius: 1.5rem;
 	box-shadow: 0 1.25rem 2.5rem color-mix(in oklab, black 16%, transparent);

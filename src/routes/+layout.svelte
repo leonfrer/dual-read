@@ -20,6 +20,8 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f2e6c0" />
+	<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14120c" />
 	<title>Dual Read</title>
 </svelte:head>
 
@@ -41,14 +43,14 @@
 		display: grid;
 		place-items: center;
 		cursor: wait;
-		background: Canvas;
+		background: var(--paper);
 	}
 
 	.opening-mark {
 		width: 1.35rem;
 		height: 1.35rem;
-		border: 1.5px solid color-mix(in oklab, CanvasText 18%, transparent);
-		border-top-color: color-mix(in oklab, CanvasText 68%, transparent);
+		border: 1.5px solid color-mix(in oklab, var(--ink) 18%, transparent);
+		border-top-color: color-mix(in oklab, var(--ink) 68%, transparent);
 		border-radius: 999px;
 		animation: opening-spin 0.7s linear infinite;
 	}
@@ -62,7 +64,7 @@
 	@media (prefers-reduced-motion: reduce) {
 		.opening-mark {
 			animation: none;
-			border-color: color-mix(in oklab, CanvasText 45%, transparent);
+			border-color: color-mix(in oklab, var(--ink) 45%, transparent);
 		}
 	}
 </style>

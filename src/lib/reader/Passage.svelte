@@ -99,8 +99,8 @@
 	.passage :global(.prose blockquote) {
 		margin-inline: 0;
 		padding-inline: 0.9em 0;
-		border-left: 1px solid color-mix(in oklab, CanvasText 22%, transparent);
-		color: color-mix(in oklab, CanvasText 82%, transparent);
+		border-left: 1px solid color-mix(in oklab, var(--ink) 22%, transparent);
+		color: color-mix(in oklab, var(--ink) 82%, transparent);
 	}
 
 	.passage[lang='zh-Hans'] :global(.prose blockquote) {
@@ -114,14 +114,14 @@
 
 	.passage :global(.prose pre) {
 		padding: 0.85em 1em;
-		background: color-mix(in oklab, CanvasText 6%, Canvas);
+		background: color-mix(in oklab, var(--ink) 6%, var(--paper));
 		border-radius: 0.4rem;
 		overflow-x: auto;
 	}
 
 	.passage :global(.prose :where(code):not(pre code)) {
 		padding: 0.12em 0.35em;
-		background: color-mix(in oklab, CanvasText 7%, Canvas);
+		background: color-mix(in oklab, var(--ink) 7%, var(--paper));
 		border-radius: 0.25rem;
 	}
 

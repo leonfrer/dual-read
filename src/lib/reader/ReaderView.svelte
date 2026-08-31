@@ -682,7 +682,7 @@
 		overflow-anchor: none;
 		touch-action: pan-y;
 		scrollbar-width: thin;
-		scrollbar-color: color-mix(in oklab, CanvasText 22%, transparent) transparent;
+		scrollbar-color: color-mix(in oklab, var(--ink) 22%, transparent) transparent;
 	}
 
 	.chapter-pad {
@@ -704,12 +704,12 @@
 		bottom: 0;
 		left: 50%;
 		width: 1px;
-		background: color-mix(in oklab, CanvasText 8%, transparent);
+		background: color-mix(in oklab, var(--ink) 8%, transparent);
 		pointer-events: none;
 	}
 
 	.chapter ::selection {
-		background: color-mix(in oklab, CanvasText 16%, transparent);
+		background: color-mix(in oklab, var(--ink) 16%, transparent);
 	}
 
 	.virt-space {
@@ -734,7 +734,7 @@
 		bottom: 0.55em;
 		left: 50%;
 		width: 1px;
-		background: CanvasText;
+		background: var(--ink);
 		opacity: 0;
 		transform: translateX(-50%) scaleY(0.64);
 		transform-origin: center;
@@ -772,9 +772,9 @@
 		-webkit-user-select: none;
 		background: linear-gradient(
 			to bottom,
-			Canvas 0%,
-			Canvas 48%,
-			color-mix(in oklab, Canvas 72%, transparent) 76%,
+			var(--paper) 0%,
+			var(--paper) 48%,
+			color-mix(in oklab, var(--paper) 72%, transparent) 76%,
 			transparent
 		);
 		transition:
@@ -792,9 +792,9 @@
 		padding: 0.45rem 2rem 1.25rem;
 		background: linear-gradient(
 			to top,
-			Canvas 0%,
-			Canvas 42%,
-			color-mix(in oklab, Canvas 72%, transparent) 76%,
+			var(--paper) 0%,
+			var(--paper) 42%,
+			color-mix(in oklab, var(--paper) 72%, transparent) 76%,
 			transparent
 		);
 	}
@@ -834,7 +834,7 @@
 	.chrome-progress {
 		flex-shrink: 0;
 		font-variant-numeric: tabular-nums;
-		color: color-mix(in oklab, CanvasText 68%, transparent);
+		color: color-mix(in oklab, var(--ink) 68%, transparent);
 	}
 
 	.hairline {
@@ -858,7 +858,7 @@
 
 	.hairline-track {
 		right: var(--hairline-inset);
-		background: color-mix(in oklab, CanvasText 16%, transparent);
+		background: color-mix(in oklab, var(--ink) 16%, transparent);
 		transition:
 			height 160ms ease,
 			background-color 160ms ease;
@@ -866,7 +866,7 @@
 
 	.hairline-fill {
 		width: calc((100% - 2 * var(--hairline-inset)) * var(--pct, 0) / 100);
-		background: color-mix(in oklab, CanvasText 48%, transparent);
+		background: color-mix(in oklab, var(--ink) 48%, transparent);
 		transition:
 			width 180ms ease,
 			height 160ms ease,
@@ -880,7 +880,7 @@
 		width: 1.5px;
 		height: 8px;
 		border-radius: 1px;
-		background: CanvasText;
+		background: var(--ink);
 		transform: translate(-50%, -50%);
 		transition:
 			left 180ms ease,

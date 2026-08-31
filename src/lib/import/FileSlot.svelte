@@ -115,7 +115,7 @@
 		font-size: 0.875rem;
 		text-overflow: ellipsis;
 		white-space: nowrap;
-		color: color-mix(in oklab, CanvasText 55%, transparent);
+		color: color-mix(in oklab, var(--ink) 55%, transparent);
 		transition: color 120ms ease;
 	}
 
@@ -126,7 +126,7 @@
 	.filled .file,
 	.dragging .label,
 	.dragging .file {
-		color: CanvasText;
+		color: var(--ink);
 	}
 
 	@media (hover: none) {

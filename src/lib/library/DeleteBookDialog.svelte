@@ -184,6 +184,6 @@
 	.hint {
 		margin-top: 0.4rem;
 		font-size: 0.875rem;
-		color: color-mix(in oklab, CanvasText 55%, transparent);
+		color: color-mix(in oklab, var(--ink) 55%, transparent);
 	}
 </style>

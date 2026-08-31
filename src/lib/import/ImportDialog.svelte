@@ -160,7 +160,7 @@
 		color: inherit;
 		background: transparent;
 		border: 0;
-		border-bottom: 1px solid color-mix(in oklab, CanvasText 12%, transparent);
+		border-bottom: 1px solid color-mix(in oklab, var(--ink) 12%, transparent);
 		border-radius: 0;
 		transition: border-color 120ms ease;
 	}
@@ -168,7 +168,7 @@
 	.field input:hover,
 	.field input:focus-visible {
 		outline: none;
-		border-bottom-color: CanvasText;
+		border-bottom-color: var(--ink);
 	}
 
 	.wells {
@@ -185,7 +185,7 @@
 		bottom: 0;
 		left: 50%;
 		width: 1px;
-		background: color-mix(in oklab, CanvasText 12%, transparent);
+		background: color-mix(in oklab, var(--ink) 12%, transparent);
 		pointer-events: none;
 	}
 

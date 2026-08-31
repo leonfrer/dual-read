@@ -201,7 +201,7 @@ Reader **behavior** (what is current, how you move, what chrome does) is the con
 - The current pair is at full contrast. Other pairs are dim, still readable and selectable. Lighting is the whole row (both sides). Currently dim is ~40% opacity. There is no second mode and no zen toggle.
 - Columns currently max about 28–32rem, with a ~3rem gutter and a faint vertical rule. The gutter mark on the current pair brightens and unfurls; the pair is currently centered rather than stretched to the full viewport width.
 - Pair rows are currently spaced like consecutive paragraphs (~1.1em padding).
-- Color currently follows the OS (`prefers-color-scheme`).
+- Color currently follows the OS (`prefers-color-scheme`). Light uses unbleached paper; dark uses warm night paper.
 - Type currently uses system fonts: UI chrome, library, and import use `ui-sans-serif`. Passage text uses `lang="en"` with a system serif (ui-serif / Georgia) and `lang="zh-Hans"` with a system Song / PingFang stack.
 - Native text selection is allowed (comparison).
 
@@ -277,5 +277,5 @@ v1 is done when:
 6. Reloading `/book/:id` does not dump the user on `/`.
 7. The reader shows a two-column chapter, English left; the current pair is lit and other pairs are dim; Home, End, click, wheel, and the progress hairline move; a drag selects text without changing pair; a click without a drag focuses that pair. On touch, a tap on the current pair toggles chrome, a pan scrolls without treating that as a tap, and the reading band still follows the scroll.
 8. Delete with confirm removes the book.
-9. Font size survives reload and applies to every book. Color currently follows the OS.
+9. Font size survives reload and applies to every book. Color currently follows the OS (light paper, dark night paper).
 10. There is no path in the UI to edit text, add a note, search, or open a TOC.
