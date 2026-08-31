@@ -12,7 +12,6 @@
 	import { openingBook } from '$lib/opening.svelte';
 	import { tick } from 'svelte';
 	import { prefersReducedMotion } from 'svelte/motion';
-	import { fade } from 'svelte/transition';
 	import {
 		DIM_OPACITY,
 		FOCUS_MS,
@@ -50,10 +49,8 @@
 	let dock = $state<'top' | 'bottom'>('top');
 	let chromeVisible = $state(false);
 	let touchChrome = $state(false);
-	let hairlineHover = $state(false);
 	let hairlineActive = $state(false);
 	let scroller = $state<HTMLDivElement | null>(null);
-	let motionMs = $derived(prefersReducedMotion.current ? 0 : 180);
 
 	let ignoreSpy = false;
 	let selecting = false;
@@ -309,7 +306,9 @@
 
 		index = next;
 		persistCurrent(true);
-		dismissTouchChrome();
+		if (origin !== 'scrub') {
+			dismissTouchChrome();
+		}
 
 		if (!scroller) {
 			return;
@@ -406,14 +405,8 @@
 	}
 
 	function updateChromeFromMouse(event: PointerEvent) {
-		if (
-			event.target instanceof Element &&
-			event.target.closest('[data-progress-hairline]') &&
-			!hoveringChrome
-		) {
-			if (!touchChrome) {
-				chromeVisible = false;
-			}
+		if (hairlineActive) {
+			chromeVisible = true;
 			return;
 		}
 
@@ -510,10 +503,6 @@
 	}
 
 	function onpointerup(event: PointerEvent) {
-		if (hairlineActive && event.pointerType !== 'mouse') {
-			hairlineHover = false;
-		}
-
 		endHairline();
 
 		const start = pointerStart;
@@ -558,9 +547,6 @@
 
 		pointerStart = null;
 		selecting = false;
-		if (event.pointerType !== 'mouse') {
-			hairlineHover = false;
-		}
 		endHairline();
 	}
 </script>
@@ -624,7 +610,7 @@
 		onmouseenter={() => (hoveringChrome = true)}
 		onmouseleave={() => {
 			hoveringChrome = false;
-			if (!touchChrome) {
+			if (!touchChrome && !hairlineActive) {
 				chromeVisible = false;
 			}
 		}}
@@ -654,43 +640,31 @@
 			</button>
 			<a class="quiet-action" href={resolve('/')}>Exit</a>
 		</div>
-	</div>
 
-	<div
-		class={['hairline', hairlineActive && 'scrubbing']}
-		role="group"
-		aria-label="Reading progress"
-		data-progress-hairline
-		style:--pct={fillPercent}
-		onpointerenter={() => (hairlineHover = true)}
-		onpointerleave={() => {
-			if (!hairlineActive) {
-				hairlineHover = false;
-			}
-		}}
-	>
-		<div class="hairline-track"></div>
-		<div class="hairline-fill"></div>
-		<div class="hairline-thumb"></div>
-		<input
-			type="range"
-			min="1"
-			max={book.pairCount}
-			value={position}
-			aria-label="Progress"
-			aria-valuetext="{position} of {book.pairCount}"
-			oninput={onslider}
-			onpointerdown={() => {
-				hairlineActive = true;
-				hairlineHover = true;
-				ignoreSpy = true;
-			}}
-		/>
-		{#if hairlineHover || hairlineActive}
-			<p class="hairline-label" data-hairline-label transition:fade={{ duration: motionMs }}>
-				{position}/{book.pairCount}
-			</p>
-		{/if}
+		<div
+			class={['hairline', hairlineActive && 'scrubbing']}
+			role="group"
+			aria-label="Reading progress"
+			data-progress-hairline
+			style:--pct={fillPercent}
+		>
+			<div class="hairline-track"></div>
+			<div class="hairline-fill"></div>
+			<div class="hairline-thumb"></div>
+			<input
+				type="range"
+				min="1"
+				max={book.pairCount}
+				value={position}
+				aria-label="Progress"
+				aria-valuetext="{position} of {book.pairCount}"
+				oninput={onslider}
+				onpointerdown={() => {
+					hairlineActive = true;
+					ignoreSpy = true;
+				}}
+			/>
+		</div>
 	</div>
 </div>
 
@@ -788,8 +762,11 @@
 	.chrome {
 		position: absolute;
 		z-index: 20;
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
 		inset-inline: 0;
-		padding: 1.35rem 2rem 1.85rem;
+		padding: 1.25rem 2rem 0.45rem;
 		font-size: 0.8125rem;
 		user-select: none;
 		-webkit-user-select: none;
@@ -810,8 +787,9 @@
 	}
 
 	.chrome[data-chrome-dock='bottom'] {
-		bottom: var(--hairline-hit);
-		padding: 1.85rem 2rem 1.15rem;
+		bottom: 0;
+		flex-direction: column-reverse;
+		padding: 0.45rem 2rem 1.25rem;
 		background: linear-gradient(
 			to top,
 			Canvas 0%,
@@ -861,12 +839,11 @@
 
 	.hairline {
 		--hairline-inset: 8px;
-		position: absolute;
-		right: 0;
-		bottom: 0;
-		left: 0;
-		z-index: 30;
+		position: relative;
+		flex-shrink: 0;
+		width: min(100%, 67rem);
 		height: var(--hairline-hit);
+		margin-inline: auto;
 		touch-action: none;
 	}
 
@@ -952,23 +929,6 @@
 		height: var(--hairline-hit);
 		border: 0;
 		background: transparent;
-	}
-
-	.hairline-label {
-		position: absolute;
-		bottom: calc(var(--hairline-hit) + 4px);
-		left: clamp(
-			2.25rem,
-			calc(var(--hairline-inset) + (100% - 2 * var(--hairline-inset)) * var(--pct, 0) / 100),
-			calc(100% - 2.25rem)
-		);
-		padding: 0.12em 0.45em;
-		font-size: 0.6875rem;
-		font-variant-numeric: tabular-nums;
-		color: color-mix(in oklab, CanvasText 82%, transparent);
-		background: Canvas;
-		transform: translateX(-50%);
-		pointer-events: none;
 	}
 
 	@keyframes chapter-in {

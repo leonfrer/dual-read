@@ -219,10 +219,9 @@ On a mouse or trackpad, hidden until the pointer is near a window edge (top/bott
 - `n/N`
 - `A+` / `A-` (global font size, persisted; applies to passage text only)
 - Exit → library
+- A progress hairline (the scrubber) on the content-facing edge of the chrome
 
-Chrome currently uses quiet text controls (no persistent underline, no icons, no capsule buttons) on a gradient veil. Hover raises contrast. Progress is not a slider inside this bar.
-
-A **full-width progress control** stays at the bottom of the window (currently a hairline with a tick). It is the scrubber (jump to any pair by position; persist immediately). Hover or drag shows `n/N`. On touch the hit area is larger (~44px) and `n/N` shows while scrubbing. When the bottom chrome appears, it sits above this control; the control does not hide.
+Chrome currently uses quiet text controls (no persistent underline, no icons, no capsule buttons) on a gradient veil. Hover raises contrast. The progress hairline lives inside the chrome and hides with it, so it is not a standing hit target (especially on iPad). Jump to any pair by position; persist immediately. `n/N` in the chrome updates while scrubbing. On touch the hit area is larger (~44px).
 
 No onboarding. No notes placeholder. No import. There is no import control inside zen; leave to the library first.
 
